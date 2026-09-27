@@ -1,0 +1,587 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>ALCA Cloud Run Coverage</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+:root {
+  --bg: #F4F6F3;
+  --surface: #FFFFFF;
+  --ink: #18201D;
+  --muted: #56645F;
+  --rule: #D9DFDA;
+  --accent: #0D6A62;
+  --accent-soft: #E1F0ED;
+  --pass: #2B7549;
+  --pass-soft: #E4F1E8;
+  --warn: #8F620F;
+  --warn-soft: #F5EDDB;
+  --fail: #A8241C;
+  --fail-soft: #F7E4E2;
+  --code-bg: #ECEFEB;
+  --display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --body: "IBM Plex Sans", -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #0F1413; --surface: #161D1B; --ink: #E3EAE6; --muted: #9AA8A3; --rule: #28322F;
+    --accent: #52CFC0; --accent-soft: #11302C;
+    --pass: #63C58B; --pass-soft: #142A1D; --warn: #E3B457; --warn-soft: #2C2414;
+    --fail: #EF8C84; --fail-soft: #2F1A18; --code-bg: #1B2422;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0F1413; --surface: #161D1B; --ink: #E3EAE6; --muted: #9AA8A3; --rule: #28322F;
+  --accent: #52CFC0; --accent-soft: #11302C;
+  --pass: #63C58B; --pass-soft: #142A1D; --warn: #E3B457; --warn-soft: #2C2414;
+  --fail: #EF8C84; --fail-soft: #2F1A18; --code-bg: #1B2422;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 15.5px;
+  line-height: 1.6;
+  padding-inline: 20px;
+  padding-block: 0 72px;
+}
+.wrap { max-width: 1160px; margin: 0 auto; display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 48px; }
+@media (max-width: 900px) { .wrap { grid-template-columns: minmax(0, 1fr); gap: 0; } nav.toc { display: none; } }
+
+nav.toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 24px); align-self: start; padding-top: 40px; font-size: 13.5px; }
+nav.toc .grp { font-family: var(--display); font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 18px 0 6px; }
+nav.toc a { display: block; color: var(--ink); text-decoration: none; padding: 3px 0 3px 10px; border-left: 2px solid var(--rule); }
+nav.toc a:hover, nav.toc a:focus-visible { border-left-color: var(--accent); color: var(--accent); outline: none; }
+
+main { min-width: 0; max-width: 780px; }
+header.top { padding-top: 40px; padding-bottom: 8px; }
+.eyebrow { font-family: var(--mono); font-size: 12.5px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px 14px; }
+.eyebrow a { color: var(--accent); }
+h1 { font-family: var(--display); font-weight: 700; font-size: clamp(30px, 5vw, 42px); line-height: 1.1; letter-spacing: -.01em; margin: 10px 0 12px; text-wrap: balance; }
+.lede { font-size: 17px; color: var(--ink); max-width: 66ch; margin: 0 0 22px; }
+
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 1px; background: var(--rule); border: 1px solid var(--rule); border-radius: 6px; overflow: hidden; margin-bottom: 18px; }
+.fact { background: var(--surface); padding: 12px 14px; }
+.fact b { display: block; font-family: var(--display); font-size: 22px; font-variant-numeric: tabular-nums; line-height: 1.2; }
+.fact span { font-size: 13px; color: var(--muted); }
+.fact.ok b { color: var(--pass); }
+
+.note { background: var(--warn-soft); border: 1px solid color-mix(in srgb, var(--warn) 35%, transparent); border-radius: 6px; padding: 12px 14px; font-size: 14.5px; margin: 0 0 8px; }
+.note strong { color: var(--warn); }
+.note.info { background: var(--accent-soft); border-color: color-mix(in srgb, var(--accent) 35%, transparent); }
+.note.info strong { color: var(--accent); }
+
+section { padding-top: 36px; }
+h2 { font-family: var(--display); font-weight: 700; font-size: 24px; line-height: 1.2; margin: 0 0 6px; text-wrap: balance; display: flex; gap: 12px; align-items: baseline; }
+h2 .n { font-family: var(--mono); font-size: 14px; font-weight: 500; color: var(--accent); }
+.group-label { font-family: var(--display); font-size: 12px; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); margin: 48px 0 -18px; padding-top: 14px; border-top: 1px solid var(--rule); }
+h3 { font-family: var(--display); font-weight: 600; font-size: 17px; margin: 22px 0 6px; }
+p { margin: 0 0 12px; max-width: 70ch; }
+.sub { color: var(--muted); margin-bottom: 16px; }
+ul, ol { margin: 0 0 14px; padding-left: 22px; max-width: 70ch; }
+li { margin: 4px 0; }
+code, .mono { font-family: var(--mono); font-size: .88em; background: var(--code-bg); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+a { color: var(--accent); }
+
+.table-wrap { overflow-x: auto; border: 1px solid var(--rule); border-radius: 6px; background: var(--surface); margin: 10px 0 16px; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { text-align: left; vertical-align: top; padding: 9px 12px; border-bottom: 1px solid var(--rule); }
+th { font-family: var(--display); font-weight: 600; font-size: 12.5px; letter-spacing: .03em; color: var(--muted); background: color-mix(in srgb, var(--code-bg) 60%, var(--surface)); white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+td code { background: transparent; padding: 0; }
+.cov td:first-child { white-space: nowrap; font-family: var(--mono); font-size: 13px; }
+.ids td:nth-child(3) { font-family: var(--mono); font-size: 12.5px; }
+
+.pill { display: inline-block; font-size: 12px; font-weight: 600; padding: 1px 8px; border-radius: 999px; white-space: nowrap; }
+.pill.pass { background: var(--pass-soft); color: var(--pass); }
+.pill.exp { background: var(--warn-soft); color: var(--warn); }
+.pill.fail { background: var(--fail-soft); color: var(--fail); }
+.fam { font-size: 12px; color: var(--muted); display: block; margin-top: 2px; font-family: var(--body); }
+
+.pipe { list-style: none; padding: 0; margin: 12px 0 16px; counter-reset: step; max-width: none; }
+.pipe li { counter-increment: step; display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 12px; padding: 10px 0; border-bottom: 1px dashed var(--rule); margin: 0; }
+.pipe li:last-child { border-bottom: 0; }
+.pipe li::before { content: counter(step); font-family: var(--mono); font-weight: 500; font-size: 13px; color: var(--accent); background: var(--accent-soft); border-radius: 50%; width: 28px; height: 28px; display: grid; place-items: center; }
+.pipe b { font-weight: 600; }
+.pipe .fn { display: block; font-family: var(--mono); font-size: 12.5px; color: var(--muted); margin-top: 2px; overflow-wrap: anywhere; }
+
+.tl { position: relative; margin: 14px 0 8px; padding-left: 22px; border-left: 2px solid var(--rule); }
+.stage { position: relative; padding: 2px 0 20px; }
+.stage::before { content: ""; position: absolute; left: -29px; top: 7px; width: 12px; height: 12px; border-radius: 50%; background: var(--surface); border: 2px solid var(--accent); }
+.stage.bad::before { border-color: var(--fail); }
+.stage.win::before { background: var(--pass); border-color: var(--pass); }
+.stage .when { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+.stage h3 { margin: 2px 0 6px; }
+.stage p { margin-bottom: 8px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.chip { font-family: var(--mono); font-size: 11.5px; padding: 1px 7px; border: 1px solid var(--rule); border-radius: 4px; color: var(--muted); background: var(--surface); }
+.chip.c { border-color: color-mix(in srgb, var(--accent) 40%, var(--rule)); color: var(--accent); }
+
+
+pre.cmd { position: relative; background: var(--code-bg); border-radius: 6px; padding: 12px 88px 12px 14px; margin: 6px 0 14px; overflow-x: auto; font-family: var(--mono); font-size: 13px; line-height: 1.5; white-space: pre; }
+.copy { position: absolute; top: 8px; right: 8px; font: 500 12px var(--body); color: var(--accent); background: var(--surface); border: 1px solid var(--rule); border-radius: 4px; padding: 3px 9px; cursor: pointer; }
+.copy:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.cmd-label { font-size: 14px; margin: 14px 0 0; font-weight: 500; }
+
+.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--rule); font-size: 13px; color: var(--muted); }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+html { scroll-behavior: smooth; }
+</style>
+
+<div class="wrap">
+<nav class="toc" aria-label="Sections">
+  <div class="grp">Overview</div>
+  <a href="#summary">What this branch does</a>
+  <div class="grp">The flow</div>
+  <a href="#problem">1 · The gap and the broken tests</a>
+  <a href="#design">2 · The design</a>
+  <a href="#pipeline">3 · How one run works</a>
+  <a href="#timeline">4 · How the POC unfolded</a>
+  <a href="#verification">5 · Final verification</a>
+  <div class="grp">Reference</div>
+  <a href="#coverage">What the goldens cover</a>
+  <a href="#gaps">Not covered yet</a>
+  <a href="#root-causes">Root causes found</a>
+  <a href="#files">Files in this PR</a>
+  <a href="#run">How to run</a>
+  <a href="#open">Open items</a>
+</nav>
+
+<main>
+<header class="top" id="summary">
+  <div class="eyebrow">
+    <a href="https://github.com/browserstack/BStackAutomation/pull/85702">PR #85702</a>
+    <span>branch alca/cloud-run-poc</span>
+    <span>head c519f8a</span>
+    <span>26 Sep 2026</span>
+  </div>
+  <h1>Cloud run coverage for App LCA</h1>
+  <p class="lede">This branch adds automated coverage for cloud runs, the part of App LCA where a saved test runs in a suite on real devices and the build reports results. Tests are created from JSON goldens through the API. Each golden runs in its own suite on a free device the backend accepts, and its run is checked step by step from the result JSON.</p>
+
+  <div class="facts">
+    <div class="fact ok"><b>21 / 21</b><span>Android goldens green on prod, Galaxy S23 13.0</span></div>
+    <div class="fact ok"><b>22 / 22</b><span>iOS goldens green on regression, pinned iPhone 15 Pro 17.0</span></div>
+    <div class="fact"><b>5</b><span>suite-level and abort cases, green on regression</span></div>
+    <div class="fact"><b>16 commits</b><span>64 files, all in ALCA/api plus the POC plan</span></div>
+  </div>
+
+  <p class="note info"><strong>Scope.</strong> This branch holds only the cloud-run work. The editor fixes it used to carry are in <a href="https://github.com/browserstack/BStackAutomation/pull/85278">PR #85278</a>.</p>
+</header>
+
+<div class="group-label">The flow</div>
+
+<section id="problem">
+  <h2><span class="n">01</span>The gap and the broken tests</h2>
+  <p>The Playwright suite covers live "Run all" runs in the editor. Cloud runs had no working coverage. Doing it through the UI means recording a test, saving it, building a suite, running it and reading the Builds page, which costs 10 to 15 minutes and two device allocations per feature. With about 30 features on two platforms that doesn't scale.</p>
+  <p>Two cloud-run API tests already existed, TC-686716 (Android) and TC-686717 (iOS). They had failed at suite creation since June with <code>422 One or more tests are not available in this project</code>.</p>
+  <p><strong>Cause:</strong> <code>POST /api/v2/tests</code> only creates an inactive shell. The <code>PUT /api/v2/tests/:versionId</code> is the real save that persists the steps and syncs TestHub, and a refactor had dropped it. The suite validator couldn't see the test.</p>
+  <p><strong>Fix:</strong> <code>createTestFromFixture</code> now posts the shell, seeds any variables, globals or modules the test needs, then saves with the PUT. Both old tests go through it and get past suite creation. TC-686717 would still fail at its type step, because its hand-written fixture uses <code>type</code> where the runner expects <code>type_text</code>. Neither was re-run to green; the matrix supersedes them.</p>
+</section>
+
+<section id="design">
+  <h2><span class="n">02</span>The design</h2>
+  <ul>
+    <li><strong>Goldens, not recordings.</strong> Each feature is a JSON fixture holding a complete saved-test payload plus an <code>expect</code> block. The Phase 0 action shapes (tap, type, validate, if/else, loops, AI) and the module and variable reference shapes were captured from saved regression tests. The Phase 1 shapes (gestures, sleep, extraction, app lifecycle, deeplink) were written from reads of the editor's serializer and the runner, then checked by saving and reading back, and by green builds.</li>
+    <li><strong>One suite per golden, on a free device.</strong> The run first finds free devices the backend accepts, then gives each golden its own suite. This started as one suite per platform; that version queued every golden behind a single device when only one was free.</li>
+    <li><strong>Per-step assertions.</strong> The run-detail API only links to the worker's result JSON. The suite follows that link and checks each step's status, error text and duration, plus loop iteration counts.</li>
+    <li><strong>Apps:</strong> iOS uses the AWS DeviceFarm reference app and Android uses qa-playground.apk. Both are uploaded fresh every run, because regression apps expire on every deploy.</li>
+  </ul>
+  <p>Three alternatives were rejected:</p>
+  <ul>
+    <li>UI end-to-end per feature: too slow, and it asserts through a dashboard that is itself under test.</li>
+    <li>Driving the runner directly: it tests the engine, not the product.</li>
+    <li>Mocked build responses: no runtime coverage.</li>
+  </ul>
+</section>
+
+<section id="pipeline">
+  <h2><span class="n">03</span>How one run works</h2>
+  <p class="sub">What happens when <code>cloudRun.matrix.&lt;platform&gt;.test.js</code> runs in the default per-test layout. The body is <code>defineCloudRunMatrix</code> in <code>src/helpers/cloudRunMatrix.js</code>; device planning is in <code>src/helpers/cloudRunDevices.js</code>. <code>CLOUD_RUN_LAYOUT=per-app</code> keeps the original single suite per app.</p>
+  <ol class="pipe">
+    <li><div><b>Load goldens.</b> Read every fixture for the platform and apply the name filters.<span class="fn">loadFixtures</span></div></li>
+    <li><div><b>Plan devices.</b> Read the catalogue the backend accepts and the group's parallel count, ask a device source which devices are free, and make up to min(parallels, goldens) lanes spread across distinct models. The plan fails fast if it can't fit the time budget.<span class="fn">planDevices · fetchCatalogue · fetchParallels · matchCatalogue · planAssignments</span></div></li>
+    <li><div><b>Upload the app</b> once per app, then look up its catalogue id.<span class="fn">uploadCloudRunApp → uploadSampleApp · fetchAlcaCatalogId</span></div></li>
+    <li><div><b>Create each test</b>: POST the shell, seed the variables, globals or modules it needs, substitute their ids, then save with the PUT.<span class="fn">createTestFromFixture · seedFixtureEntities · substituteEntityIds</span></div></li>
+    <li><div><b>Re-plan</b> right before triggering, since availability is a snapshot.<span class="fn">planDevices</span></div></li>
+    <li><div><b>Run the lanes.</b> Each lane is a device. All lanes pull goldens from one queue; a free lane creates a suite for its next golden on its device and triggers it.<span class="fn">runLanes · createSuiteForCloudRun · createSuiteRun</span></div></li>
+    <li><div><b>Poll every live build</b> about once a second overall, to stay under the 100-a-minute status limit. A 5xx or 429 falls back to the v2 build detail; a build whose status fails five times is aborted.<span class="fn">readBuildStatus → getBuildStatus / getBuildStatusFromDetail</span></div></li>
+    <li><div><b>Read each finished build</b> as soon as it finishes, and follow its run's link to the result JSON.<span class="fn">fetchBuildDetail · fetchRunDetail</span></div></li>
+    <li><div><b>Assert each golden</b>: it ran in its own build on its assigned device, then run status, failed-step count, per-step status, error text, duration bounds and loop iterations.<span class="fn">assertRunAgainstExpectation · flattenSteps · loopIterations</span></div></li>
+    <li><div><b>Clean up</b>: abort unfinished builds, delete every suite created, then the tests, modules and globals.<span class="fn">afterAll in cloudRunMatrix.js</span></div></li>
+  </ol>
+  <h3>Where free devices come from</h3>
+  <ul>
+    <li><strong>Terminal service</strong> (<code>TERMINAL_SERVICE_PASSWORD</code>, staging): probes each candidate model and reports whether one is free. Its hold lasts 40 seconds and App Automate never reads it, so it steers the choice but can't reserve a device for a cloud run.</li>
+    <li><strong>Admin App Automate feed</strong> (<code>ADMIN_*</code>, staging): the terminals App Automate allocates from, with real free counts. Wired, but not yet exercised live.</li>
+    <li><strong>Pinned list</strong> (prod, or no credentials): <code>CLOUD_RUN_&lt;P&gt;_DEVICES</code> or the default, with availability unknown and capped by parallels.</li>
+  </ul>
+  <p>Across the whole API suite, a redacting logger keeps credentials out of pactum's failure output. It is installed in <code>setupEnv.js</code>, <code>globalSetup.js</code> and <code>globalTeardown.js</code>.</p>
+</section>
+
+<section id="timeline">
+  <h2><span class="n">04</span>How the POC unfolded</h2>
+  <p class="sub">In order, with the commits that landed each step. Short build ids are shown; full ids for every build are in <code>ALCA/plan-cloud-run-poc.md</code>, section 11.</p>
+  <div class="tl">
+    <div class="stage bad">
+      <div class="when">25 Sep · Day 1</div>
+      <h3>Plan, and the broken save found</h3>
+      <p>Wrote the plan, found the missing PUT behind the 422, and got the mechanism working up to device session creation. On regression every session create failed with an nginx 503 from the hub that day. This work landed with the next morning's fixes.</p>
+    </div>
+    <div class="stage win">
+      <div class="when">26 Sep · morning</div>
+      <h3>First green cloud run</h3>
+      <p>The upload timed out once from regression latency and passed on retry, with no code change. Three real problems were fixed: a hand-written <code>type</code> action the runner doesn't know (it uses <code>type_text</code>), the status route returning 500, and per-step statuses living in the linked result JSON rather than the API body. Jest's dropped assertion messages also surfaced here. A two-step test then passed end to end in 136 seconds.</p>
+      <div class="chips"><span class="chip c">bbfe9c7</span><span class="chip">c8sajn0g</span><span class="chip">iyx34pcu</span><span class="chip">a4pf0xvd</span></div>
+    </div>
+    <div class="stage win">
+      <div class="when">26 Sep</div>
+      <h3>Phase 0 goldens</h3>
+      <p>Added the golden generator and the matrix helper. Six iOS goldens passed in one build in 260 seconds: core steps, page validation, failure conditions, if/else, repeat N times, and AI prompt. On regression, Android got no device on S24 or S22, and the Pixel 8 and S23 runs were aborted before a slow allocation finished.</p>
+      <div class="chips"><span class="chip c">dd8d2c3</span><span class="chip">xzc7mpfh</span></div>
+    </div>
+    <div class="stage win">
+      <div class="when">26 Sep</div>
+      <h3>Multi-device runs</h3>
+      <p>A device override puts one golden on several devices. The v2 build detail nests those runs, so the reader flattens them. This Jest ignores a matcher's message argument, so every check goes through <code>assertThat</code>. One golden on iPhone 15 Pro and iPhone 13 passed on both.</p>
+      <div class="chips"><span class="chip c">59ea998</span><span class="chip">kqmbzirx</span></div>
+    </div>
+    <div class="stage win">
+      <div class="when">26 Sep</div>
+      <h3>Phase 1 goldens on iOS</h3>
+      <p>Added entity seeding for variables, globals and modules, and goldens for gestures, waits, condition loops, extraction, modules and app lifecycle. Two product findings: a literal "Set" is a no-op at run time, and creating a module whose steps carry a blockId rolls back but still returns 200 with an id that doesn't exist. All 22 iOS goldens went green across the Phase 0 and Phase 1 builds.</p>
+      <div class="chips"><span class="chip c">8275435</span><span class="chip c">10c3403</span><span class="chip">6gen2xvy</span><span class="chip">hk7tkgay</span><span class="chip">8hvbgfiw</span><span class="chip">ilwtzxpe</span><span class="chip">mgppnsaw</span></div>
+    </div>
+    <div class="stage win">
+      <div class="when">26 Sep</div>
+      <h3>Suite-level cases and abort</h3>
+      <p>Three trigger negatives return 400 with the expected message. An app-id override at trigger time was proven on a real build. Aborting an ordered block stops the build and leaves the pending test without a session.</p>
+      <div class="chips"><span class="chip c">10c3403</span><span class="chip c">58841cc</span><span class="chip">peoefquq</span><span class="chip">re14ddjs</span></div>
+    </div>
+    <div class="stage bad">
+      <div class="when">26 Sep · ~11:55–13:45 UTC</div>
+      <h3>Android on regression</h3>
+      <p>A live debug found that suites only accept devices from the backend's prod-derived catalogue. On staging those models are private, SIM-only, offline or contended. The only model that is both in the catalogue and free is Google Pixel 6 12.0, with one terminal. An early conclusion that no Android terminals existed was wrong and was corrected in the day log.</p>
+      <p>Other findings:</p>
+      <ul>
+        <li>Queued sessions time out after about 11 minutes under a misleading "invalid app URL" error.</li>
+        <li>One apk was rejected by a biometric plan gate.</li>
+        <li>The time budget now allows for the device queue.</li>
+      </ul>
+      <p>Two stuck builds were force-stopped with Devesh's script, on his go-ahead. The Pixel 6 run passed.</p>
+      <div class="chips"><span class="chip c">61eb2c2</span><span class="chip c">47fd572</span><span class="chip c">264198a</span><span class="chip">1ogcadgo</span><span class="chip">bjlzzub8</span></div>
+    </div>
+    <div class="stage bad">
+      <div class="when">26 Sep · 13:49–14:15 UTC</div>
+      <h3>Prod Android matrix, first run</h3>
+      <p>With Devesh's authorization, all 21 Android goldens ran on prod. Every run got a device, and 9 goldens passed. Ten failures came from the goldens, not the product. Page validation matches the raw page source, and qa-playground exposes labels only as content-desc, so "Name" and "Form Button" never appear. Of the other two, keys-clear lost its typed text after Enter, and failure-conditions hit an error-message race.</p>
+      <div class="chips"><span class="chip">u9pydsad</span></div>
+    </div>
+    <div class="stage win">
+      <div class="when">26 Sep · evening</div>
+      <h3>Golden fixes</h3>
+      <p>Android checks now use "Preferred Platform" for the form screen and "QA Testing Playground" for the home screen. keys-clear presses Enter last, which proved the lost text came from typing after Enter, not from clear. The fixed goldens passed 11 of 11 on regression and 12 of 12 on prod.</p>
+      <div class="chips"><span class="chip c">10d8e35</span><span class="chip">qayyw4xr</span><span class="chip">soj1g1q7</span><span class="chip">achfztwi</span></div>
+    </div>
+    <div class="stage win">
+      <div class="when">26 Sep · evening</div>
+      <h3>Independent review</h3>
+      <p>Three reviewers plus skeptic verification found two ways a broken product would still pass:</p>
+      <ul>
+        <li><strong>Kill wasn't proven:</strong> kill-proof couldn't tell a real kill from a restart. It now checks the home screen is absent right after Kill.</li>
+        <li><strong>Taps depended on the AI locator:</strong> every Android tap went through it because the labels didn't match. The home tap now uses the exact label "Form &amp; Validation", and prod records <code>elementLocatedUsingAI: false</code>. The unlabeled "Name" field still goes through the AI locator, so most Android goldens still depend on that service.</li>
+      </ul>
+      <p>The one-second timeout golden showed the same race as failure-conditions. Both now accept either message, with duration bounds that still prove the limit.</p>
+      <div class="chips"><span class="chip c">10d8e35</span><span class="chip">s4dglc1i</span></div>
+    </div>
+    <div class="stage win">
+      <div class="when">26 Sep · ~16:20 UTC</div>
+      <h3>Credential redaction</h3>
+      <p>A transient 401 on regression's upload endpoint made pactum dump the full request, Basic-auth username and access key included. Any failing spec in the suite could do that on CI. A redacting logger now masks auth and authorization, cookies, password, secret, token and <code>*_token</code>, <code>access_key</code> and <code>x-api-key</code>. With fake credentials, all six leaked without it and none with it.</p>
+      <div class="chips"><span class="chip c">e8ffe31</span></div>
+    </div>
+    <div class="stage win">
+      <div class="when">26 Sep · ~16:26 UTC</div>
+      <h3>AI prompt lands where intended</h3>
+      <p>The AI step was followed only by another AI-located tap, so a misdirected click could pass. A page check right after it now proves where it landed.</p>
+      <div class="chips"><span class="chip c">5c4a60d</span><span class="chip">ypzsakm6</span><span class="chip">yfq2jbrr</span></div>
+    </div>
+    <div class="stage win">
+      <div class="when">26 Sep · ~17:00 UTC</div>
+      <h3>Branch cleanup and poll fix</h3>
+      <p>The four editor-fix commits the branch had inherited were dropped; they are in PR #85278. The cloud-run commits were replayed onto the same base with byte-identical content, which is why their hashes changed. The status poll's retry was inverted: every successful poll made four requests and a real 5xx was never retried. It now retries only on 5xx. A final prod sweep found nothing left behind.</p>
+      <div class="chips"><span class="chip c">ef65956</span><span class="chip c">5fd4d9c</span></div>
+    </div>
+    <div class="stage win">
+      <div class="when">26 Sep · ~17:15–18:00 UTC</div>
+      <h3>Device-aware runs</h3>
+      <p>All goldens for an app shared one suite on one model, so a model with one free device ran them one at a time and the rest timed out in the queue. Each golden now gets its own suite on a free catalogue device. Lanes are capped by parallels and pull from one shared queue. An independent review fixed four defects before commit.</p>
+      <p>On regression, with devices from the terminal service, six goldens per platform passed 7 of 7 on iOS and Android, twice. Android ran reliably on regression for the first time: while one golden held the Pixel 6 for five minutes, the S23 lane ran the next three.</p>
+      <div class="chips"><span class="chip c">c519f8a</span><span class="chip">fxcoo64f</span><span class="chip">bb9pjp6f</span><span class="chip">ogcitkmz</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="verification">
+  <h2><span class="n">05</span>Final verification</h2>
+  <p class="sub">Builds for the goldens that changed after Phase 1, plus every Android golden. The 16 iOS goldens that did not change since their Phase 0 and Phase 1 builds are listed in the last row.</p>
+  <div class="table-wrap">
+  <table class="ids">
+    <thead><tr><th>Scope</th><th>Where</th><th>Build id</th><th>Result</th></tr></thead>
+    <tbody>
+      <tr><td>App lifecycle ×4</td><td>prod, Galaxy S23</td><td>fywftctrbd14bpra8dowjohpwlyqmwqzie44kete</td><td><span class="pill pass">green</span></td></tr>
+      <tr><td>Flow ×4</td><td>prod, Galaxy S23</td><td>mxyvhm22kuhmhrpz79l6enhssojyqxl54ksmvsex</td><td><span class="pill pass">green</span></td></tr>
+      <tr><td>Tap, type, data, variables ×4</td><td>prod, Galaxy S23</td><td>m5wqd76utb7paasomnsertctdt906u2cw7iiapde</td><td><span class="pill pass">green</span></td></tr>
+      <tr><td>Failure conditions, warn timeout</td><td>prod, Galaxy S23</td><td>s4dglc1irz2xjuqxskvgdsv0qcq0sbmwxwwzkcne</td><td><span class="pill pass">green</span></td></tr>
+      <tr><td>Keys-clear, swipe, module, 1s timeout, validate, sleep</td><td>prod, Galaxy S23</td><td>7nbrbdb0e4jyqne4h2zhvjzvkuwvc8gpckedh0qz</td><td><span class="pill pass">green</span></td></tr>
+      <tr><td>AI prompt</td><td>prod, Galaxy S23</td><td>yfq2jbrrwtp8bxzsctqpcumqnihpde19abyqpzi1</td><td><span class="pill pass">green</span></td></tr>
+      <tr><td>Android, 5 builds</td><td>regression, Pixel 6</td><td>cmqe7cyw · caidpx8j · xqknii3h · mkf7rd25 · xwowcgsz</td><td><span class="pill pass">19 of 21</span> on final versions: swipe-scroll never got the one Pixel 6, and ai.prompt ran its earlier version</td></tr>
+      <tr><td>iOS changed goldens ×4</td><td>regression, iPhone 15 Pro</td><td>xb0ujnxaxzulwk28kjml5g11stargo00owrxsob6</td><td><span class="pill pass">green</span></td></tr>
+      <tr><td>iOS AI prompt</td><td>regression, iPhone 15 Pro</td><td>ypzsakm6pt4gpdt6t9lzhvlef3gfiwy8bhtxftrf</td><td><span class="pill pass">green</span></td></tr>
+      <tr><td>One suite per golden, iOS ×6</td><td>regression, iPhone 13 + iPhone 15 Pro (terminal service)</td><td>5kctsxte · fxcoo64f · nmafi6x9 · vsnk1g4j · zd7vbk7o · exavnjx4</td><td><span class="pill pass">green</span></td></tr>
+      <tr><td>One suite per golden, Android ×6</td><td>regression, Pixel 6 + Galaxy S23 (terminal service)</td><td>vl5r2hjr · bb9pjp6f · do1jt19h · ogcitkmz · vjx2nd13 · avrjywsm</td><td><span class="pill pass">green</span></td></tr>
+      <tr><td>iOS, 16 unchanged goldens</td><td>regression, iPhone 15 Pro</td><td>xzc7mpfh · 6gen2xvy · hk7tkgay · 8hvbgfiw · ilwtzxpe · mgppnsaw</td><td><span class="pill pass">green</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>The iOS one-second timeout golden changed only in its expected error text and duration bounds. It was re-checked against its recorded runs, not re-run on a device. Prod was swept after the last prod build, and no test, module or global from these runs remains.</p>
+</section>
+
+<div class="group-label">Reference</div>
+
+<section id="coverage">
+  <h2>What the goldens cover</h2>
+  <p class="sub">22 goldens. All exist on both platforms except module.existing, which is iOS-only. <span class="pill exp">fails on purpose</span> marks goldens whose expected outcome is a failure at a specific step, which proves the failure path.</p>
+  <div class="table-wrap">
+  <table class="cov">
+    <thead><tr><th>Golden</th><th>What it exercises</th><th>Expected</th><th>What it proves</th></tr></thead>
+    <tbody>
+      <tr><td>core.tap-type<span class="fam">core</span></td><td>Tap a labelled element, tap an input, type</td><td><span class="pill pass">passes</span></td><td>A test seeded through the API runs in a cloud build and reports per step</td></tr>
+      <tr><td>validate.page-contains<span class="fam">validate</span></td><td>Page contains / does not contain, with fail-and-continue</td><td><span class="pill exp">fails on purpose · steps 3, 4</span></td><td>Validation works both ways, a failed check fails the test, and the next step still runs</td></tr>
+      <tr><td>control.failure-conditions<span class="fam">failure conditions</span></td><td>Warn-and-continue on a missing element, 5 s wait</td><td><span class="pill pass">passes · step 2 warns</span></td><td>A failure becomes a Warning within 4.5–14 s and the test passes</td></tr>
+      <tr><td>flow.if-else<span class="fam">flow</span></td><td>Two if/else pairs, one true and one false</td><td><span class="pill pass">passes</span></td><td>Only the taken branch runs; untaken headers report Skipped</td></tr>
+      <tr><td>flow.repeat-n<span class="fam">flow</span></td><td>Repeat 3 times</td><td><span class="pill pass">passes</span></td><td>Exactly 3 iterations, each readable and passed</td></tr>
+      <tr><td>flow.repeat-until-zero<span class="fam">flow</span></td><td>Repeat until, condition already true</td><td><span class="pill pass">passes</span></td><td>The condition is checked first; 0 iterations</td></tr>
+      <tr><td>flow.repeat-until-one<span class="fam">flow</span></td><td>Repeat until, the body makes it true</td><td><span class="pill pass">passes</span></td><td>The loop exits after exactly 1 iteration</td></tr>
+      <tr><td>entities.variables<span class="fam">entities</span></td><td>Local variable typed at run time</td><td><span class="pill pass">passes</span></td><td>The stored value reaches the device</td></tr>
+      <tr><td>entities.global-variable<span class="fam">entities</span></td><td>Project global variable</td><td><span class="pill pass">passes</span></td><td>Globals resolve in a cloud run</td></tr>
+      <tr><td>data.extract<span class="fam">extraction</span></td><td>Set variable to an element's text, validate it, type it</td><td><span class="pill pass">passes</span></td><td>Run-time extraction writes a variable a later step uses</td></tr>
+      <tr><td>gesture.swipe-scroll<span class="fam">gestures</span></td><td>Scroll and swipe up and down</td><td><span class="pill pass">passes</span></td><td>Gestures execute and the session survives; not that the screen moved</td></tr>
+      <tr><td>gesture.keys-clear<span class="fam">gestures</span></td><td>Type, clear, retype, press a key</td><td><span class="pill pass">passes</span></td><td>On Android, clear really removes the old text</td></tr>
+      <tr><td>wait.sleep-obeyed<span class="fam">waits</span></td><td>Wait 20 seconds</td><td><span class="pill pass">passes</span></td><td>The wait takes 20–45 s</td></tr>
+      <tr><td>timeout.custom-1s<span class="fam">timeouts</span></td><td>1 s step timeout, fail-and-continue</td><td><span class="pill exp">fails on purpose · step 2</span></td><td>The custom limit applies, not the 180 s default</td></tr>
+      <tr><td>timeout.warn-default<span class="fam">timeouts</span></td><td>Warn step with no timeout set</td><td><span class="pill pass">passes · step 2 warns</span></td><td>The runner's 15 s default applies</td></tr>
+      <tr><td>module.two-steps<span class="fam">modules</span></td><td>Module created the editor's way</td><td><span class="pill pass">passes</span></td><td>Module steps expand and report per step</td></tr>
+      <tr><td>module.existing<span class="fam">modules · iOS only</span></td><td>Reuse the regression project's existing "Module Sync" module</td><td><span class="pill pass">passes</span></td><td>A test can run an existing module version</td></tr>
+      <tr><td>app.launch-kill<span class="fam">app lifecycle</span></td><td>Launch while running, kill, launch</td><td><span class="pill pass">passes</span></td><td>Launch keeps state; kill then launch cold-starts</td></tr>
+      <tr><td>app.kill-proof<span class="fam">app lifecycle</span></td><td>Kill really terminates the app</td><td><span class="pill exp">fails on purpose · step 4</span></td><td>Kill neither leaves the app on screen nor restarts it</td></tr>
+      <tr><td>app.background-resume<span class="fam">app lifecycle</span></td><td>Home key, then Launch app</td><td><span class="pill exp">fails on purpose · step 4</span></td><td>Home backgrounds without killing; Launch resumes with state</td></tr>
+      <tr><td>app.deeplink-denied<span class="fam">app lifecycle</span></td><td>A denylisted deeplink</td><td><span class="pill exp">fails on purpose · step 2</span></td><td>The runner blocks it and the session carries on</td></tr>
+      <tr><td>ai.prompt<span class="fam">AI</span></td><td>Natural-language step, then a landing check</td><td><span class="pill pass">passes</span></td><td>The AI step runs and lands on the intended screen</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <h3>Suite-level spec (iOS)</h3>
+  <ul>
+    <li>An unknown <code>ios_app_id</code> at trigger returns 400 with an app-not-found message.</li>
+    <li>An <code>android_app_id</code> on an iOS-only suite returns 400.</li>
+    <li>A bogus <code>network_tracking</code> value returns 400.</li>
+    <li>An <code>ios_app_id</code> override is applied: it shows in the trigger response, the build and the run, and a carrier test that only passes on that app passes.</li>
+    <li>Abort stops the build, and the pending test in an ordered block never gets a session.</li>
+  </ul>
+</section>
+
+<section id="gaps">
+  <h2>Not covered yet</h2>
+  <div class="cols">
+    <div>
+      <h3>Steps and flow</h3>
+      <ul>
+        <li>Double tap, long press, and verified scrolling</li>
+        <li>Element-level validation</li>
+        <li>A fail-and-stop step actually stopping the test</li>
+        <li>If/else and repeat-until on non-page conditions</li>
+        <li>Regex extraction, pickers</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Entities and integrations</h3>
+      <ul>
+        <li>Secrets, datasets, shared variables</li>
+        <li>Modules with AI steps or module variables</li>
+        <li>Call API, DB query, email OTP, camera injection</li>
+        <li>Network profile, geolocation, custom actions</li>
+        <li>Biometric and entitlements toggles</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Suite and build</h3>
+      <ul>
+        <li>iOS and Android in one suite</li>
+        <li>Android app-id override; always-latest app version</li>
+        <li>Block-wise gating and stop-execution</li>
+        <li>Rerun, CI/CD report, list by suite</li>
+        <li>Suite-level spec on Android</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="root-causes">
+  <h2>Root causes found</h2>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Symptom</th><th>Cause</th><th>Fix</th></tr></thead>
+    <tbody>
+      <tr><td>Old cloud-run tests: 422 at suite creation</td><td>The POST only creates a shell; the PUT is the save, and it had been dropped</td><td>POST, seed, PUT in <code>createTestFromFixture</code></td></tr>
+      <tr><td>"Action class not found for type"</td><td>A hand-written fixture used an action the runner doesn't know</td><td>Fixture corrected to the captured <code>type_text</code> shape; composed shapes are round-trip checked</td></tr>
+      <tr><td>Poller failed a healthy build</td><td>The status route returns 500 for builds with session-less runs</td><td>Fall back to the v2 build detail</td></tr>
+      <tr><td>No per-step statuses in the API</td><td>They live in the worker's result JSON behind a signed link</td><td><code>fetchRunDetail</code> follows the link</td></tr>
+      <tr><td>Assertion messages lost</td><td>This Jest ignores a matcher's message argument</td><td><code>assertThat(condition, message)</code></td></tr>
+      <tr><td>Multi-device build looked short</td><td>The v2 detail nests runs per device</td><td><code>flattenRuns</code></td></tr>
+      <tr><td>Variables golden failed</td><td>A literal Set is a no-op at run time</td><td>Golden reworked; extraction got its own golden</td></tr>
+      <tr><td>API-created modules invisible</td><td>Creating with steps that carry a blockId rolls back but returns 200 with a missing id</td><td>Create empty, import, let the save fill it</td></tr>
+      <tr><td>Android: no device on regression</td><td>Catalogue models on staging are private, SIM-only, offline or contended</td><td>Pixel 6 12.0 on regression; real signal from prod</td></tr>
+      <tr><td>"Invalid app URL" after ~11 min</td><td>A queued-session timeout reported under that message, and apps expiring on deploy</td><td>Upload fresh every run; message to raise with backend</td></tr>
+      <tr><td>Spec gave up while queued</td><td>The budget ignored the device queue</td><td>17-minute queue allowance, 50-minute cap</td></tr>
+      <tr><td>10 prod Android failures</td><td>Flutter exposes labels only as content-desc; checks used strings that never appear</td><td>"Preferred Platform" and "QA Testing Playground"</td></tr>
+      <tr><td>keys-clear lost the retyped text</td><td>Enter ends the input session on this Flutter field</td><td>Enter runs last</td></tr>
+      <tr><td>Error text alternates on timeouts</td><td>The finder and the step watchdog share a deadline and race</td><td>Accept either text, bound the duration</td></tr>
+      <tr><td>Kill not proven</td><td>The form screen is gone after a kill and after a restart</td><td>Check home is absent right after Kill</td></tr>
+      <tr><td>Taps passed only through AI</td><td>Exact lookups missed the labels, so the AI fallback resolved them</td><td>Tap the exact label "Form &amp; Validation"; "Name" still uses the AI locator</td></tr>
+      <tr><td>AI click could land anywhere</td><td>Its only follow-up was another AI-located tap</td><td>Page check right after the AI step</td></tr>
+      <tr><td>Goldens queued behind one device</td><td>All goldens shared one suite on one model</td><td>One suite per golden on free catalogue devices, lanes sharing one queue</td></tr>
+      <tr><td>Each status poll made four requests</td><td>The retry strategy was inverted: it stopped only on 5xx</td><td>Retry only on 5xx</td></tr>
+      <tr><td>Credentials in test logs</td><td>Pactum prints the full request, auth included, on any failed spec</td><td>Hand-checked status in the poller; redacting logger suite-wide</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section id="files">
+  <h2>Files in this PR</h2>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Path</th><th>Change</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td><code>api/src/helpers/cloudRunMatrix.js</code></td><td>added</td><td>Matrix body: per-test lanes (default) or one suite per app; seed, trigger, poll, assert, clean up</td></tr>
+      <tr><td><code>api/src/helpers/cloudRunDevices.js</code></td><td>added</td><td>Device planning: catalogue, parallels, device sources, lanes, budget</td></tr>
+      <tr><td><code>api/src/utils/cloudRun.util.js</code></td><td>added</td><td>Build and run readers, step flattening, the expectation checks</td></tr>
+      <tr><td><code>api/src/helpers/redactPactumLogs.js</code></td><td>added</td><td>Masks credentials in pactum's log output</td></tr>
+      <tr><td><code>api/src/__tests__/cloudRun.matrix.ios.test.js</code></td><td>added</td><td>iOS matrix, 22 goldens</td></tr>
+      <tr><td><code>api/src/__tests__/cloudRun.matrix.android.test.js</code></td><td>added</td><td>Android matrix, 21 goldens</td></tr>
+      <tr><td><code>api/src/__tests__/cloudRun.suiteLevel.ios.test.js</code></td><td>added</td><td>Trigger negatives, app-id override, abort</td></tr>
+      <tr><td><code>api/scripts/compose-goldens.js</code></td><td>added</td><td>Generates all 43 fixtures; accepts a platform and golden to regenerate one</td></tr>
+      <tr><td><code>api/scripts/capture-golden.js</code></td><td>added</td><td>Exports a saved test as a starting fixture</td></tr>
+      <tr><td><code>api/src/env/env-common/metadata/cloud-run/</code></td><td>added</td><td>43 golden fixtures, 22 iOS and 21 Android</td></tr>
+      <tr><td><code>api/src/utils/tests.util.js</code></td><td>modified</td><td>POST, seed, PUT; variable, global and module helpers</td></tr>
+      <tr><td><code>api/src/utils/builds.util.js</code></td><td>modified</td><td>Trigger overrides, raw trigger, safe status check, 5xx-only retry, v2 fallback</td></tr>
+      <tr><td><code>api/src/utils/uploadApp.util.js</code></td><td>modified</td><td>Finds app binaries in either suite; uploads by app key</td></tr>
+      <tr><td><code>api/src/utils/testSuites.util.js</code></td><td>modified</td><td>Suites with several tests, a chosen app and devices</td></tr>
+      <tr><td><code>api/src/env/env-common/constants/constants.js</code></td><td>modified</td><td>New endpoints, the golden app catalogue, the default Android device</td></tr>
+      <tr><td><code>api/src/env/env-common/constants/requestConstant.js</code></td><td>modified</td><td>Suite body builder for cloud runs</td></tr>
+      <tr><td><code>api/src/__tests__/setup/*.js</code></td><td>modified</td><td>Install the log redaction</td></tr>
+      <tr><td><code>api/src/__tests__/cloudRun.{ios,android}.test.js</code></td><td>modified</td><td>Comments only; the POST and PUT change gets them past suite creation</td></tr>
+      <tr><td><code>plan-cloud-run-poc.md</code></td><td>added</td><td>Design, feature matrix and the full day log</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="sub">Paths are under <code>ALCA/</code>.</p>
+</section>
+
+<section id="run">
+  <h2>How to run</h2>
+  <p>Setup: run <code>npm install</code> in <code>ALCA/api</code> and decrypt the auth config for your environment. Never commit the decrypted file. The iOS app, <code>AWSDeviceFarmiOSReferenceApp.ipa</code>, is not tracked; the UI suite's download flow fetches it into its downloads folder.</p>
+
+  <p class="cmd-label">iOS matrix on regression. module.existing needs that project's "Module Sync" module; elsewhere add <code>CLOUD_RUN_EXCLUDE=module.existing</code>.</p>
+  <pre class="cmd"><button class="copy" type="button">Copy</button>cd ALCA/api
+ENV=regression INCLUDE_MANUAL=true npx jest src/__tests__/cloudRun.matrix.ios.test.js</pre>
+
+  <p class="cmd-label">Suite-level and abort spec</p>
+  <pre class="cmd"><button class="copy" type="button">Copy</button>cd ALCA/api
+ENV=regression INCLUDE_MANUAL=true npx jest src/__tests__/cloudRun.suiteLevel.ios.test.js</pre>
+
+  <p class="cmd-label">Android matrix on prod. This uses real prod devices, so a person runs it.</p>
+  <pre class="cmd"><button class="copy" type="button">Copy</button>cd ALCA/api
+ENV=prod INCLUDE_MANUAL=true npx jest src/__tests__/cloudRun.matrix.android.test.js</pre>
+
+  <p class="cmd-label">Android on regression, devices from the terminal service. Export <code>TERMINAL_SERVICE_PASSWORD</code> first.</p>
+  <pre class="cmd"><button class="copy" type="button">Copy</button>cd ALCA/api
+ENV=regression INCLUDE_MANUAL=true CLOUD_RUN_DEVICE_SOURCE=terminal-service CLOUD_RUN_ANDROID_DEVICES="Google Pixel 6:12.0,Samsung Galaxy S23:13.0" npx jest src/__tests__/cloudRun.matrix.android.test.js</pre>
+
+  <p class="cmd-label">Preview the device plan. Nothing is seeded or triggered.</p>
+  <pre class="cmd"><button class="copy" type="button">Copy</button>cd ALCA/api
+ENV=regression INCLUDE_MANUAL=true CLOUD_RUN_PLAN_ONLY=true npx jest src/__tests__/cloudRun.matrix.ios.test.js</pre>
+
+  <p class="cmd-label">Regenerate goldens. No credentials needed; regenerate only what changed.</p>
+  <pre class="cmd"><button class="copy" type="button">Copy</button>cd ALCA/api
+node scripts/compose-goldens.js android gesture.keys-clear</pre>
+
+  <h3>Filters</h3>
+  <ul>
+    <li><code>CLOUD_RUN_FIXTURE=&lt;substring&gt;</code> keeps only matching goldens. Prefer it to <code>jest -t</code>, which still seeds and builds everything.</li>
+    <li><code>CLOUD_RUN_EXCLUDE=a,b</code> drops goldens whose names contain any entry.</li>
+    <li><code>CLOUD_RUN_IOS_DEVICES</code> or <code>CLOUD_RUN_ANDROID_DEVICES</code> take <code>"Name:version,…"</code>: the candidate list for discovery, or the pinned list.</li>
+    <li><code>CLOUD_RUN_DEVICE_SOURCE</code> picks <code>static</code>, <code>admin-feed</code> or <code>terminal-service</code>; <code>CLOUD_RUN_REQUIRE_AVAILABLE=true</code> refuses the pinned list.</li>
+    <li><code>CLOUD_RUN_BUDGET_CAP_MIN</code> (default 50) bounds a run; the plan fails fast when it can't fit.</li>
+  </ul>
+</section>
+
+<section id="open">
+  <h2>Open items</h2>
+  <ul>
+    <li><strong>Device discovery follow-ups:</strong>
+      <ul>
+        <li>The admin-feed source is wired but not yet exercised live; the staging admin host refused this network.</li>
+        <li>The terminal service counts at most one free device per model.</li>
+        <li>A prod run of the per-test layout is pending.</li>
+        <li>The API suite needs the admin or terminal-service secrets in its own config; today they come from environment variables.</li>
+      </ul>
+    </li>
+    <li><strong>No Jenkins job yet.</strong> It needs an owner and a decision on prod or regression for Android signal.</li>
+    <li><strong>Regression Android</strong> needs catalogue models made public on the staging pool.</li>
+    <li><strong>Backend bugs to raise:</strong>
+      <ul>
+        <li>The status route returns 500 for builds with session-less runs.</li>
+        <li>Module create with blockId-carrying steps returns a missing id.</li>
+        <li>A device-queue timeout is reported as "invalid app URL".</li>
+        <li>Queued sessions keep asking for devices after an abort.</li>
+      </ul>
+    </li>
+    <li><strong>Runner:</strong> <code>UI_STABILITY_WAIT_MS</code> is undefined, so page checks read the screen once after a one-second pause. Checks right after a cold launch could flake.</li>
+    <li><strong>Old tests:</strong> TC-686716 and TC-686717 remain. TC-686717's fixture still uses <code>type</code>, so it would fail at that step. Retire both once the matrix replaces them.</li>
+    <li><strong>Plan items not built:</strong> app reuse between runs, a fixture drift guard, a quarantine flag, device choice from the live feed, and the instant-run lane.</li>
+  </ul>
+</section>
+
+<footer>Built from the branch history, the code, and <code>ALCA/plan-cloud-run-poc.md</code> at c519f8a, and fact-checked against the repo.</footer>
+</main>
+</div>
+
+<script>
+document.querySelectorAll('pre.cmd .copy').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    var pre = btn.parentElement;
+    var text = Array.prototype.filter.call(pre.childNodes, function (n) { return n !== btn; })
+      .map(function (n) { return n.textContent; }).join('').trim();
+    var done = function () { btn.textContent = 'Copied'; setTimeout(function () { btn.textContent = 'Copy'; }, 1500); };
+    var fallback = function () {
+      var range = document.createRange();
+      range.selectNodeContents(pre);
+      var sel = window.getSelection();
+      sel.removeAllRanges(); sel.addRange(range);
+      btn.textContent = 'Selected';
+      setTimeout(function () { btn.textContent = 'Copy'; }, 1500);
+    };
+    try {
+      navigator.clipboard.writeText(text).then(done, fallback);
+    } catch (e) { fallback(); }
+  });
+});
+</script>
+
+</body></html>
